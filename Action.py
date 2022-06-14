@@ -15,5 +15,9 @@ class Action:
         self.add_list = positive_effect
         self.delete_list = negative_effect
 
-
-
+    def __str__(self):
+        return "name " + self.name + \
+               " - precond " + self.negative_precondition.__str__() +\
+               " + precond " + self.positive_precondition.__str__() + \
+               " add list " + self.add_list.__str__() +\
+               "delete list " + self.delete_list.__str__()
