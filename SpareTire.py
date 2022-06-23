@@ -1,3 +1,4 @@
+import copy
 from Action import Action
 from State import State
 
@@ -25,6 +26,7 @@ class SpareTire:
         self.location = ['trunk', 'axle']
         self.all_actions = []
         self.mode = mode
+        # TODO: goal?
 
     def define_actions(self):
         remove_action = Action('remove')
@@ -60,13 +62,24 @@ class SpareTire:
         leaveOvernight_action.delete_list.append(temp)
         self.all_actions.append(leaveOvernight_action)
 
-    def ignore_preconditions(self):
-        for action in self.all_actions:
-            action.positive_precondition = []
-            action.negative_precondition = []
+    def ignore_preconditions(self, state):
+        all_states = [state]
+        i = 0
+        for st in all_states:
+            if i > 3:
+                return None
+            for action in self.all_actions:
+                new_state = State(st, action)
+                new_state.positive_literals.append(action.add_list)
+                new_state.negative_literals.append(action.delete_list)
+                print(new_state)
+                all_states.append(new_state)
+                temp = None
+            new_state = None
+            i += 1
+
 
     def forward(self):
-
         self.define_actions()
         actions_list = []
         current_state = State(None, None)
@@ -77,9 +90,9 @@ class SpareTire:
         s0.positive_literals.append(temp)
 
         if self.mode == 'precond':
-            self.ignore_preconditions()
+            self.ignore_preconditions(current_state)
 
         #TODO: implement ignore_delete_list
 
-        for action in self.all_actions:
-            print(possible_action(action, s0))
+        # for action in self.all_actions:
+        #     print(possible_action(action, s0))
