@@ -7,9 +7,6 @@ class SpareTire:
     ground = 'ground'
 
     def __init__(self, mode):
-        # TODO: what if I put object(obj) and location(loc)
-        #  used in defining preconditions and effects
-        #  inside the following lists?
         self.tires = ['flat', 'spare']
         self.location = ['trunk', 'axle']
         self.all_actions = []
@@ -104,9 +101,7 @@ class SpareTire:
             for i in range(0, size):
                 if goal == state.positive_literals[i] and goal not in state.negative_literals:
                     count += 1
-                elif (state.positive_literals[i][1] == 'obj' and state.positive_literals[i][2]==goal[2]) \
-                        or (state.positive_literals[i][2] == 'loc' and state.positive_literals[i][1] == goal[1]):
-                    count += 1
+
         if goal_count == count:
             print("finished")
             self.print_action(state)
@@ -164,12 +159,11 @@ class SpareTire:
                     if start == 0:
                         new_state.positive_literals.extend(state.positive_literals)
                     if self.goal_test(new_state):
-                        print("YES")
                         return
                     all_states.append(new_state)
                     start += 1
 
-    def forward(self):
+    def search(self):
         self.init()
         actions_list = []
         current_state = State(None, None)
@@ -183,8 +177,42 @@ class SpareTire:
             self.ignore_preconditions(current_state)
         elif self.mode == 'delete-list':
             self.ignore_delete_list(current_state)
+        elif self.mode == 'backward':
+            self.backward(current_state)
 
-        # TODO: implement ignore_delete_list
+    def init_test(self, state, init_state):
+        count = 0
+        size = len(init_state.positive_literals)
+        for pos in init_state.positive_literals:
+            if pos in init_state.positive_literals:
+                count += 1
+        return count == count
 
-        # for action in self.all_actions:
-        #     print(possible_action(action, s0))
+    def is_relevant(self, action=Action):
+
+
+    def backward(self, init_state):
+        current_state = State(None, None)
+        temp = ['at', self.tires[1], self.location[1]]
+        current_state.positive_literals.append(temp)
+        i = 0
+        all_states = [current_state]
+
+        for state in all_states:
+            for action in self.all_actions:
+                if self.is_relevant(action):
+                    temp_state = State(state, action)
+                    a = set(map(tuple, state.positive_literals))
+                    b = set(map(tuple, action.add_list))
+
+                    temp_state.positive_literals = list(a - b).__add__(action.positive_precondition)
+                    a = set(map(tuple, state.negative_literals))
+                    b = set(map(tuple, action.delete_list))
+                    temp_state.negative_literals = list(a - b).__add__(action.negative_precondition)
+
+                    if self.init_test(temp_state, init_state):
+                        self.print_action(temp_state)
+                        return
+                    all_states.append(temp_state)
+                    i += 1
+
