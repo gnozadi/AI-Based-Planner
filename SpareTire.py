@@ -184,12 +184,27 @@ class SpareTire:
         count = 0
         size = len(init_state.positive_literals)
         for pos in init_state.positive_literals:
-            if pos in init_state.positive_literals:
+            if pos in state.positive_literals:
                 count += 1
-        return count == count
+        return count == size
 
-    def is_relevant(self, action=Action):
+    def is_relevant(self, state, add_list, delete_list):
+        count = 0
+        total = len(delete_list) + len(add_list)
+        for pos in add_list:
+            for pos_effect in state.positive_literals:
+                if pos == pos_effect:
+                    count += 1
+        for neg in delete_list:
+            for neg_effect in state.negative_literals:
+                if neg == neg_effect:
+                    count += 1
 
+        # print("total= ", total, " count= ", count)
+        if count > 0:
+            return True
+        else:
+            return False
 
     def backward(self, init_state):
         current_state = State(None, None)
@@ -197,22 +212,43 @@ class SpareTire:
         current_state.positive_literals.append(temp)
         i = 0
         all_states = [current_state]
-
+        print(len(self.all_actions))
         for state in all_states:
             for action in self.all_actions:
-                if self.is_relevant(action):
-                    temp_state = State(state, action)
-                    a = set(map(tuple, state.positive_literals))
-                    b = set(map(tuple, action.add_list))
 
-                    temp_state.positive_literals = list(a - b).__add__(action.positive_precondition)
-                    a = set(map(tuple, state.negative_literals))
-                    b = set(map(tuple, action.delete_list))
-                    temp_state.negative_literals = list(a - b).__add__(action.negative_precondition)
+                if self.is_relevant(state, action.add_list, action.delete_list):
+                    res = []
+                    temp_state = State(state, action)
+                    # print(action)
+
+                    intersection1 = [list(x) for x in set(tuple(x) for x in state.positive_literals).intersection(
+                        set(tuple(x) for x in action.add_list))]
+                    sub1 = [x for x in state.positive_literals if x not in intersection1]
+                    temp_state.positive_literals = sub1 + action.positive_precondition
+
+                    [res.append(x) for x in temp_state.positive_literals if x not in res]
+                    temp_state.positive_literals = (res)
+
+                    res = []
+
+                    intersection2 = [list(x) for x in set(tuple(x) for x in state.negative_literals).intersection(
+                        set(tuple(x) for x in action.delete_list))]
+                    sub2 = [x for x in state.negative_literals if x not in intersection2]
+
+                    res = sub2 + action.negative_precondition
+                    [res.append(x) for x in temp_state.negative_literals if x not in res]
+                    temp_state.negative_literals = res
+
+                    all_states.append(temp_state)
 
                     if self.init_test(temp_state, init_state):
+                        print('finished')
                         self.print_action(temp_state)
                         return
-                    all_states.append(temp_state)
+
+                    print(i, " ", temp_state, '--',  action)
+
+
+
                     i += 1
 
