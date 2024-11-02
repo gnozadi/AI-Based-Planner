@@ -24,7 +24,7 @@ This project involves implementing a general-purpose AI planner, showcasing diff
 
 ### Domains to Model
 The project requires modeling and running the planner on the following domains:
-1. **Spare Tire Domain**: Refer to pages 370 (3rd edition) and 364 (4th edition) of the specified textbook.
+1. **Spare Tire Domain**: Refer to pages 370 (3rd edition) and 364 (4th edition) of the specified textbook (Artificial Intelligence: A Modern Approach by Peter Norvig).
 2. **Blocks World Domain**: Consult the same page references as the Spare Tire domain for more details.
 3. **Monkey and Bananas Domain**: Refer to the provided link for additional resources.
 4. **Dinner-Date Domain**: Check the article referenced on pages 3 to 5 for detailed information.
